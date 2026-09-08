@@ -1,92 +1,350 @@
-//here we just write the logic of signin and signup button
-// it gives handleLogin , HandleRegister
+// import axios from "axios";
+// import { createContext, useState } from "react";
+// import httpStatus from "http-status";
+// import server from "../environment";
 
-import axios from "axios"; //to connect with backend (sends user data to backend)
-import { createContext, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-export const AuthContext = createContext({}); //creates an empty box  which holds userdata , setuserdata , handle login , handleregister
+// export const AuthContext = createContext({});
+
+// const client = axios.create({
+//   baseURL: `${server}/api/users`,
+// });
+
+// export const AuthProvider = ({ children }) => {
+//   const [userData, setUserData] = useState(null);
+
+//   // =========================
+//   // REGISTER
+//   // =========================
+//   const handleRegister = async (name, username, password) => {
+//     try {
+//       const request = await client.post("/register", {
+//         name,
+//         username,
+//         password,
+//       });
+
+//       console.log("Register Response:", request.data);
+
+//       if (request.status === httpStatus.CREATED) {
+//         return {
+//           success: true,
+//           message: request.data.message || "User registered successfully",
+//         };
+//       }
+
+//       return {
+//         success: false,
+//         message: "Registration failed",
+//       };
+//     } catch (err) {
+//       console.error("Register Error:", err.response?.data || err.message);
+
+//       return {
+//         success: false,
+//         message:
+//           err.response?.data?.message ||
+//           "Something went wrong during registration",
+//       };
+//     }
+//   };
+
+//   // =========================
+//   // LOGIN
+//   // =========================
+//   const handleLogin = async (username, password) => {
+//     try {
+//       const request = await client.post("/login", {
+//         username,
+//         password,
+//       });
+
+//       console.log("Login Response:", request.data);
+
+//       if (request.status === httpStatus.OK) {
+//         localStorage.setItem("token", request.data.token);
+
+//         return {
+//           success: true,
+//           message: request.data.message || "Login successful",
+//         };
+//       }
+
+//       return {
+//         success: false,
+//         message: "Login failed",
+//       };
+//     } catch (err) {
+//       console.error("Login Error:", err.response?.data || err.message);
+
+//       return {
+//         success: false,
+//         message:
+//           err.response?.data?.message ||
+//           "Something went wrong during login",
+//       };
+//     }
+//   };
+
+//   // =========================
+//   // GET USER HISTORY
+//   // =========================
+//   const getHistoryOfUser = async () => {
+//     try {
+//       const request = await client.get("/get_all_activity", {
+//         params: {
+//           token: localStorage.getItem("token"),
+//         },
+//       });
+
+//       return request.data;
+//     } catch (err) {
+//       console.error(err);
+//       throw err;
+//     }
+//   };
+
+//   // =========================
+//   // ADD MEETING TO HISTORY
+//   // =========================
+//   const addToUserHistory = async (meetingCode) => {
+//     try {
+//       const request = await client.post("/add_to_activity", {
+//         token: localStorage.getItem("token"),
+//         meeting_code: meetingCode,
+//       });
+
+//       return request.data;
+//     } catch (err) {
+//       console.error(err);
+//       throw err;
+//     }
+//   };
+
+//   const data = {
+//     userData,
+//     setUserData,
+//     handleRegister,
+//     handleLogin,
+//     getHistoryOfUser,
+//     addToUserHistory,
+//   };
+
+//   return (
+//     <AuthContext.Provider value={data}>
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// };
+
+import axios from "axios";
+import { createContext, useState } from "react";
 import httpStatus from "http-status";
 import server from "../environment";
 
+export const AuthContext = createContext({});
+
+// ==============================
+// AXIOS CLIENT
+// ==============================
+
 const client = axios.create({
-  baseURL: `${server}/api/users`, // base url(just type login , signup , home after this url to visit anywhere)
+  baseURL: `${server}/api/users`,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-export const AuthProvider = ({ children }) => {
-  //all components of authProvider will get data access
+// ==============================
+// AUTH PROVIDER
+// ==============================
 
-  const [userData, setUserData] = useState(null); // after login it stores users username
+export const AuthProvider = ({ children }) => {
+  const [userData, setUserData] = useState(null);
+
+  // ==============================
+  // REGISTER
+  // ==============================
+
   const handleRegister = async (name, username, password) => {
-    //for signup
     try {
-      let request = await client.post("/register", {
-        name: name,
-        username: username,
-        password: password,
+      const response = await client.post("/register", {
+        name,
+        username,
+        password,
       });
 
-      if (request.status === httpStatus.CREATED) {
-        //if account created
-        return request.data.message; //return the message "user registered successfully"
+      console.log("Register Response:", response.data);
+
+      if (
+        response.status === httpStatus.CREATED ||
+        response.status === httpStatus.OK
+      ) {
+        return {
+          success: true,
+          message: response.data?.message || "User registered successfully",
+        };
       }
-    } catch (err) {
-      throw err;
+
+      return {
+        success: false,
+        message: response.data?.message || "Registration failed",
+      };
+    } catch (error) {
+      console.error("Register Error:", error.response?.data || error.message);
+
+      // Backend not running
+      if (!error.response) {
+        return {
+          success: false,
+          message:
+            "Unable to connect to the server. Please make sure the backend is running.",
+        };
+      }
+
+      return {
+        success: false,
+        message:
+          error.response?.data?.message ||
+          "Something went wrong during registration",
+      };
     }
   };
+
+  // ==============================
+  // LOGIN
+  // ==============================
 
   const handleLogin = async (username, password) => {
     try {
-      let request = await client.post("/login", {
-        username: username,
-        password: password,
+      const response = await client.post("/login", {
+        username,
+        password,
       });
 
-      console.log(request.data);
+      console.log("Login Response:", response.data);
 
-      if (request.status === httpStatus.OK) {
-        //if account exists
-        localStorage.setItem("token", request.data.token); //storing that token in localstorage so that user has to login again if once refresh
-        return request.data.message; // return message "login successful"(by default)
+      if (response.status === httpStatus.OK) {
+        if (response.data?.token) {
+          localStorage.setItem("token", response.data.token);
+        }
+
+        return {
+          success: true,
+          message: response.data?.message || "Login successful",
+        };
       }
-    } catch (err) {
-      throw err;
+
+      return {
+        success: false,
+        message: response.data?.message || "Login failed",
+      };
+    } catch (error) {
+      console.error("Login Error:", error.response?.data || error.message);
+
+      // Backend not running
+      if (!error.response) {
+        return {
+          success: false,
+          message:
+            "Unable to connect to the server. Please make sure the backend is running.",
+        };
+      }
+
+      return {
+        success: false,
+        message:
+          error.response?.data?.message || "Something went wrong during login",
+      };
     }
   };
+
+  // ==============================
+  // GET USER HISTORY
+  // ==============================
 
   const getHistoryOfUser = async () => {
     try {
-      let request = await client.get("/get_all_activity", {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        return {
+          success: false,
+          message: "User is not logged in",
+          data: [],
+        };
+      }
+
+      const response = await client.get("/get_all_activity", {
         params: {
-          token: localStorage.getItem("token"),
+          token,
         },
       });
-      return request.data;
-    } catch (err) {
-      throw err;
+
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Get History Error:",
+        error.response?.data || error.message,
+      );
+
+      return {
+        success: false,
+        message:
+          error.response?.data?.message || "Unable to fetch meeting history",
+        data: [],
+      };
     }
   };
+
+  // ==============================
+  // ADD MEETING TO HISTORY
+  // ==============================
 
   const addToUserHistory = async (meetingCode) => {
     try {
-      let request = await client.post("/add_to_activity", {
-        token: localStorage.getItem("token"),
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        return {
+          success: false,
+          message: "User is not logged in",
+        };
+      }
+
+      const response = await client.post("/add_to_activity", {
+        token,
         meeting_code: meetingCode,
       });
-      return request;
-    } catch (e) {
-      throw e;
+
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Add History Error:",
+        error.response?.data || error.message,
+      );
+
+      return {
+        success: false,
+        message:
+          error.response?.data?.message || "Unable to save meeting history",
+      };
     }
   };
 
+  // ==============================
+  // CONTEXT DATA
+  // ==============================
+
   const data = {
-    //these functions are used to to export so that used in every file
     userData,
     setUserData,
+
     handleRegister,
     handleLogin,
+
     getHistoryOfUser,
     addToUserHistory,
   };
 
-  return <AuthContext.Provider value={data}>{children}</AuthContext.Provider>; // you can use these handlelogin, handleregister functions inAuthentication.jsx  file.
+  return <AuthContext.Provider value={data}>{children}</AuthContext.Provider>;
 };

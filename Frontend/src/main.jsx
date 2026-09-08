@@ -8,21 +8,3 @@ createRoot(document.getElementById('root')).render(
     <App />
   </StrictMode>,
 )
-
-
-//app.js
-// import "./App.css";
-
-// import LandingPage from "./pages/LandingPage";
-
-
-
-// function App() {
-
-//   return <LandingPage />;
-
-// }
-
-
-
-// export default App;
