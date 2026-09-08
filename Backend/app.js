@@ -1,55 +1,3 @@
-// import express from "express";
-// import { createServer } from "node:http";
-// import mongoose from "mongoose";
-// import dotenv from "dotenv";
-
-// import { connectToSocket } from "./src/controllers/socketManager.js";
-// import cors from "cors";
-// import userRoutes from "./src/routes/usersRoutes.js";
-
-// dotenv.config();
-
-// const app = express();
-// const server = createServer(app);
-
-// connectToSocket(server);
-
-// app.set("port", process.env.PORT || 5000);
-
-// app.use(cors());
-
-// app.use(express.json({ limit: "40kb" }));
-
-// app.use(
-//   express.urlencoded({
-//     limit: "40kb",
-//     extended: true,
-//   })
-// );
-
-// app.use("/api/users", userRoutes);
-
-// const startServer = async () => {
-//   try {
-//     // ✅ MONGODB_URI matches your .env file
-//     const connectionDb = await mongoose.connect(
-//       process.env.MONGODB_URI
-//     );
-
-//     console.log(
-//       `Mongo Connected DB Host: ${connectionDb.connection.host}`
-//     );
-
-//     server.listen(app.get("port"), () => {
-//       console.log(`Server running on port ${app.get("port")}`);
-//     });
-//   } catch (err) {
-//     console.log("Database connection error:", err.message);
-//   }
-// };
-
-// startServer();
-
 import express from "express";
 import { createServer } from "node:http";
 import mongoose from "mongoose";
@@ -82,11 +30,8 @@ const PORT = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://meet-flow-j3tjnsbqq-priyanshu-project.vercel.app",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: ["http://localhost:5173", /^https:\/\/meet-flow-.*\.vercel\.app$/],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   }),
 );
