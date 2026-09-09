@@ -1,7 +1,5 @@
-const IS_PROD = import.meta.env.PROD;
+let IS_PROD = true;
 
-const server = IS_PROD
-  ? "https://meetflow-bdol.onrender.com"
-  : "http://localhost:5000";
+const server = "https://meetflow-e4mx.onrender.com";
 
 export default server;

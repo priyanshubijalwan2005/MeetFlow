@@ -25,16 +25,37 @@ connectToSocket(server);
 const PORT = process.env.PORT || 5000;
 
 // ==============================
-// MIDDLEWARE
+// CORS
 // ==============================
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://meet-flow-tawny.vercel.app",
+];
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", /^https:\/\/meet-flow-.*\.vercel\.app$/],
+    origin: function (origin, callback) {
+      // Allow requests without an origin
+      // (for example Postman/server-to-server requests)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   }),
 );
+
+// ==============================
+// BODY PARSER
+// ==============================
 
 app.use(express.json({ limit: "40kb" }));
 
